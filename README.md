@@ -1,70 +1,159 @@
-# Getting Started with Create React App
+# IEP Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A secure, privacy-focused IEP (Individualized Education Program) tracking system that stores all data in your organization's Google Drive.
 
-## Available Scripts
+## 🔒 Privacy & Security
 
-In the project directory, you can run:
+- **FERPA Compliant**: All student data stored in your organization's Google Drive
+- **No External Servers**: Data never leaves your Google ecosystem
+- **Organizational Accounts Only**: Requires school district Google accounts
 
-### `npm start`
+## 🚀 Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Student Management**: Add, edit, and delete student profiles
+- **Goal Tracking**: Create and monitor IEP goals with customizable frequencies
+- **Assessment Recording**: Track daily, weekly, monthly assessments
+- **Progress Reports**: Generate comprehensive reports with visual progress graphs
+- **Print Functionality**: Professional print-ready reports for meetings
+- **Cloud Sync**: Automatic backup to Google Drive
+- **Weekend Awareness**: Smart scheduling that excludes weekends for daily assessments
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🌐 Live Demo
 
-### `npm test`
+Visit the live application: [https://yourusername.github.io/iep-tracking](https://yourusername.github.io/iep-tracking)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ Setup for Your Organization
 
-### `npm run build`
+### 1. Fork or Clone This Repository
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+git clone https://github.com/yourusername/iep-tracking.git
+cd iep-tracking
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 2. Configure Google OAuth
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Go to the [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Enable the Google Drive API
+4. Create OAuth 2.0 credentials
+5. Add your GitHub Pages domain to authorized origins
+6. Update the `GOOGLE_CLIENT_ID` in `src/App.tsx`
 
-### `npm run eject`
+### 3. Deploy to GitHub Pages
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### Option A: Automatic Deployment (Recommended)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Push your code to the `main` branch
+2. Go to your repository's Settings → Pages
+3. Set Source to "GitHub Actions"
+4. The app will automatically deploy on every push to main
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+#### Option B: Manual Deployment
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm run deploy
+```
 
-## Learn More
+### 4. Update Configuration
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Update the `homepage` field in `package.json` with your GitHub Pages URL
+2. Update the repository name in the workflow file if needed
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 📁 Project Structure
 
-### Code Splitting
+```
+src/
+├── components/
+│   ├── Auth/                 # Google OAuth authentication
+│   ├── StudentList/          # Student listing and management
+│   ├── StudentDetail/        # Individual student view
+│   ├── StudentReport/        # Progress reports and printing
+│   └── DataManagement/       # Import/export functionality
+├── context/
+│   └── GoogleDriveContext.tsx # Google Drive integration
+├── utils/
+│   ├── fileStorage.ts        # Data persistence layer
+│   ├── googleDriveStorage.ts # Google Drive API wrapper
+│   └── dateUtils.ts          # Business day calculations
+├── types.ts                  # TypeScript type definitions
+└── App.tsx                   # Main application component
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🔧 Development
 
-### Analyzing the Bundle Size
+```bash
+# Start development server
+npm start
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Build for production
+npm run build
 
-### Making a Progressive Web App
+# Run tests
+npm test
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# Deploy to GitHub Pages
+npm run deploy
+```
 
-### Advanced Configuration
+## 📊 Assessment Frequency Options
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **Daily**: Every business day (excludes weekends)
+- **Weekly**: Every 7 days
+- **Bi-weekly**: Every 14 days
+- **Monthly**: Every 30 days
+- **Quarterly**: Every 90 days
+- **Custom**: User-defined interval
 
-### Deployment
+## 🖨️ Printing Features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Individual student reports
+- Batch printing for all students
+- Print-optimized layouts
+- Page breaks between students
+- Professional formatting
 
-### `npm run build` fails to minify
+## 🔐 Google Drive Integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Data stored in `.iep-tracker-data` folder
+- Automatic sync on data changes
+- Fallback to localStorage if offline
+- Organizational account required
+
+## 📋 Requirements
+
+- Node.js 16 or higher
+- School district Google account
+- Modern web browser
+- Internet connection for Google Drive sync
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## ⚠️ Important Notes
+
+- **Use organizational Google accounts only**
+- **This is for educational use in compliance with FERPA**
+- **Data privacy is maintained within your Google organization**
+- **No external data storage or tracking**
+
+## 🆘 Support
+
+For issues or questions:
+1. Check the GitHub Issues page
+2. Create a new issue with detailed information
+3. Include browser and environment details
+
+---
+
+Built with ❤️ for educators and special education professionals.
