@@ -59,7 +59,7 @@ const AppContent: React.FC = () => {
     };
 
     loadData();
-  }, [context?.accessToken]); // Re-run when access token changes (context is stable)
+  }, [context]); // Re-run when context changes (includes accessToken)
 
   // Auto-save whenever students data changes (debounced)
   useEffect(() => {
@@ -76,14 +76,14 @@ const AppContent: React.FC = () => {
     }, 1000); // Save 1 second after last change
 
     return () => clearTimeout(saveTimer);
-  }, [students, isInitialized, context?.accessToken]); // Include accessToken to re-run when login status changes
+  }, [students, isInitialized, context]); // Include context to re-run when login status changes
 
   // Early return after all hooks are registered
   if (!context) {
     return null;
   }
 
-  const { isLoggedIn, accessToken } = context;
+  const { isLoggedIn } = context;
 
   const handleStudentSelect = (student: Student) => {
     setSelectedStudent(student);

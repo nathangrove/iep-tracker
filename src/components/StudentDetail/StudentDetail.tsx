@@ -162,32 +162,6 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
     }
   };
 
-  const getLastAssessmentDayStats = (goal: Goal) => {
-    if (goal.assessmentResults.length === 0) {
-      return null;
-    }
-    
-    // Sort by date and get the most recent assessment
-    const sortedResults = [...goal.assessmentResults].sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    
-    const lastDate = sortedResults[0].date;
-    
-    // Get all assessments from that last date
-    const lastDayAssessments = goal.assessmentResults.filter(result => result.date === lastDate);
-    const passes = lastDayAssessments.filter(result => result.result === 'pass').length;
-    const total = lastDayAssessments.length;
-    const successRate = total > 0 ? (passes / total * 100).toFixed(0) : 0;
-    
-    return {
-      date: lastDate,
-      successRate: Number(successRate),
-      total,
-      passes
-    };
-  };
-
   const getLastAssessment = (goal: Goal) => {
     if (goal.assessmentResults.length === 0) {
       return null;
@@ -201,21 +175,6 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
     return sortedResults[0];
   };
 
-  const getDaysAgo = (dateString: string) => {
-    const today = new Date();
-    const assessmentDate = new Date(dateString);
-    const diffTime = today.getTime() - assessmentDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return null; // Today
-    } else if (diffDays === 1) {
-      return '1 day ago';
-    } else {
-      return `${diffDays} days ago`;
-    }
-  };
-
   const getTodayStats = (goal: Goal) => {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     const todayAssessments = goal.assessmentResults.filter(result => result.date === today);
@@ -223,15 +182,6 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
     const todayFails = todayAssessments.filter(result => result.result === 'fail').length;
     
     return { todayPasses, todayFails, todayTotal: todayAssessments.length };
-  };
-
-  const getGoalStats = (goal: Goal) => {
-    const passes = goal.assessmentResults.filter(result => result.result === 'pass').length;
-    const fails = goal.assessmentResults.filter(result => result.result === 'fail').length;
-    const total = goal.assessmentResults.length;
-    const successRate = total > 0 ? (passes / total * 100).toFixed(0) : 0;
-    
-    return { passes, fails, total, successRate };
   };
 
   const groupAssessmentsByDate = (assessmentResults: AssessmentResult[]) => {
@@ -356,10 +306,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {student.goals.map((goal) => {
-            const stats = getGoalStats(goal);
             const todayStats = getTodayStats(goal);
-            const lastAssessment = getLastAssessment(goal);
-            const lastDayStats = getLastAssessmentDayStats(goal);
             const assessmentStatus = getAssessmentStatus(goal);
             
             return (
