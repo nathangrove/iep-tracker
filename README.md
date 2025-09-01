@@ -28,7 +28,7 @@ Visit the live application: [https://nathangrove.github.io/iep-tracker](https://
 
 ```bash
 git clone https://github.com/nathangrove/iep-tracker.git
-cd iep-tracking
+cd iep-tracker
 npm install
 ```
 
