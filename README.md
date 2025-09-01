@@ -20,14 +20,14 @@ A secure, privacy-focused IEP (Individualized Education Program) tracking system
 
 ## 🌐 Live Demo
 
-Visit the live application: [https://yourusername.github.io/iep-tracking](https://yourusername.github.io/iep-tracking)
+Visit the live application: [https://nathangrove.github.io/iep-tracker](https://nathangrove.github.io/iep-tracker)
 
 ## 🛠️ Setup for Your Organization
 
 ### 1. Fork or Clone This Repository
 
 ```bash
-git clone https://github.com/yourusername/iep-tracking.git
+git clone https://github.com/nathangrove/iep-tracker.git
 cd iep-tracking
 npm install
 ```
