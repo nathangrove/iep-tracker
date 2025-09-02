@@ -15,7 +15,7 @@ import {
   CalendarToday,
   Print,
 } from '@mui/icons-material';
-import { Student, Goal, AssessmentResult, GoalNote } from '../../types';
+import { Student, Goal, AssessmentResult } from '../../types';
 
 interface StudentReportProps {
   student: Student;

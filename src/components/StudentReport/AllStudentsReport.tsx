@@ -12,7 +12,7 @@ import {
   TrendingUp,
   CalendarToday,
 } from '@mui/icons-material';
-import { Student, Goal, AssessmentResult, GoalNote } from '../../types';
+import { Student, Goal, AssessmentResult } from '../../types';
 
 interface AllStudentsReportProps {
   students: Student[];
