@@ -7,6 +7,7 @@ import StudentDetail from './components/StudentDetail/StudentDetail';
 import DataManagementDialog from './components/DataManagement/DataManagementDialog';
 import { Student } from './types';
 import { IEPStorage } from './utils/fileStorage';
+import { analytics } from './utils/analytics';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Container, AppBar, Toolbar, Typography, Box, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
 import {
@@ -179,7 +180,10 @@ const AppContent: React.FC = () => {
 
           <IconButton
             color="inherit"
-            onClick={() => setHelpModalOpen(true)}
+            onClick={() => {
+              setHelpModalOpen(true);
+              analytics.helpModalOpened();
+            }}
             sx={{ 
               mr: 1,
               '&:hover': {
