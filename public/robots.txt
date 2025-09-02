@@ -1,3 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Sitemap
+Sitemap: https://nathangrove.github.io/iep-tracker/sitemap.xml
+
+# Disallow any API endpoints or sensitive areas if they exist
+# Disallow: /api/

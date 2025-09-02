@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "IEP Tracker",
+  "name": "IEP Tracker - Special Education Progress Management",
+  "description": "Professional IEP goal tracking and progress monitoring tool for special education teachers",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,9 +9,9 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "logo128.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "128x128"
     },
     {
       "src": "logo512.png",
@@ -18,8 +19,10 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/iep-tracker/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1976d2",
+  "background_color": "#ffffff",
+  "categories": ["education", "productivity"],
+  "lang": "en-US"
 }
