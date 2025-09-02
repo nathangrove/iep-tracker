@@ -516,7 +516,7 @@ const AppContent: React.FC = () => {
               Best Practices:
             </Typography>
             <Typography variant="body2" sx={{ mb: 1 }}>
-              • Record data consistently (daily recommended)
+              • Record data consistently (based on the IEP recommendation)
             </Typography>
             <Typography variant="body2" sx={{ mb: 1 }}>
               • Include notes about conditions or modifications
