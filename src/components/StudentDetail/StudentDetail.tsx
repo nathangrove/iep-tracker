@@ -34,9 +34,10 @@ import {
   Assignment,
   Edit,
   ExpandMore,
-  Delete
+  Delete,
+  Notes
 } from '@mui/icons-material';
-import { Student, Goal, AssessmentResult } from '../../types';
+import { Student, Goal, AssessmentResult, GoalNote } from '../../types';
 import { getDaysSince } from '../../utils/dateUtils';
 import StudentReport from '../StudentReport/StudentReport';
 
@@ -58,6 +59,12 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
   const [newGoalFrequency, setNewGoalFrequency] = useState<'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'custom'>('weekly');
   const [newGoalCustomDays, setNewGoalCustomDays] = useState<number>(7);
   const [expandedGoal, setExpandedGoal] = useState<string | false>(false);
+  const [addNoteDialogOpen, setAddNoteDialogOpen] = useState(false);
+  const [selectedGoalForNote, setSelectedGoalForNote] = useState<string | null>(null);
+  const [newNoteText, setNewNoteText] = useState('');
+  const [editNoteDialogOpen, setEditNoteDialogOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState<GoalNote | null>(null);
+  const [editNoteText, setEditNoteText] = useState('');
 
   const addAssessment = (goalId: string, result: 'pass' | 'fail') => {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -90,7 +97,8 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
         endDate: newGoalEndDate,
         frequency: newGoalFrequency,
         ...(newGoalFrequency === 'custom' && { customFrequencyDays: newGoalCustomDays }),
-        assessmentResults: []
+        assessmentResults: [],
+        notes: []
       };
 
       const updatedStudent = {
@@ -117,6 +125,101 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
           ? {
               ...goal,
               assessmentResults: goal.assessmentResults.filter(result => result.date !== dateToDelete)
+            }
+          : goal
+      )
+    };
+    
+    onUpdateStudent(updatedStudent);
+  };
+
+  const addNote = (goalId: string, noteText: string) => {
+    if (!noteText.trim()) return;
+    
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const newNote: GoalNote = {
+      noteId: Date.now().toString(),
+      date: today,
+      note: noteText.trim()
+    };
+
+    const updatedStudent = {
+      ...student,
+      goals: student.goals.map(goal => 
+        goal.goalId === goalId
+          ? {
+              ...goal,
+              notes: [...(goal.notes || []), newNote] // Handle existing goals without notes array
+            }
+          : goal
+      )
+    };
+    
+    onUpdateStudent(updatedStudent);
+  };
+
+  const deleteNote = (goalId: string, noteId: string) => {
+    const updatedStudent = {
+      ...student,
+      goals: student.goals.map(goal => 
+        goal.goalId === goalId
+          ? {
+              ...goal,
+              notes: (goal.notes || []).filter(note => note.noteId !== noteId) // Handle existing goals without notes array
+            }
+          : goal
+      )
+    };
+    
+    onUpdateStudent(updatedStudent);
+  };
+
+  const openAddNoteDialog = (goalId: string) => {
+    setSelectedGoalForNote(goalId);
+    setNewNoteText('');
+    setAddNoteDialogOpen(true);
+  };
+
+  const handleAddNote = () => {
+    if (selectedGoalForNote && newNoteText.trim()) {
+      addNote(selectedGoalForNote, newNoteText);
+      setAddNoteDialogOpen(false);
+      setNewNoteText('');
+      setSelectedGoalForNote(null);
+    }
+  };
+
+  const openEditNoteDialog = (goalId: string, note: GoalNote) => {
+    setSelectedGoalForNote(goalId);
+    setEditingNote(note);
+    setEditNoteText(note.note);
+    setEditNoteDialogOpen(true);
+  };
+
+  const handleEditNote = () => {
+    if (selectedGoalForNote && editingNote && editNoteText.trim()) {
+      editNote(selectedGoalForNote, editingNote.noteId, editNoteText);
+      setEditNoteDialogOpen(false);
+      setEditNoteText('');
+      setEditingNote(null);
+      setSelectedGoalForNote(null);
+    }
+  };
+
+  const editNote = (goalId: string, noteId: string, newText: string) => {
+    if (!newText.trim()) return;
+    
+    const updatedStudent = {
+      ...student,
+      goals: student.goals.map(goal => 
+        goal.goalId === goalId
+          ? {
+              ...goal,
+              notes: (goal.notes || []).map(note => 
+                note.noteId === noteId
+                  ? { ...note, note: newText.trim() }
+                  : note
+              )
             }
           : goal
       )
@@ -372,6 +475,19 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
                       >
                         Fail {todayStats.todayFails > 0 && `(${todayStats.todayFails})`}
                       </Button>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<Notes />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openAddNoteDialog(goal.goalId);
+                        }}
+                        size="small"
+                        sx={{ minWidth: 90 }}
+                      >
+                        Note
+                      </Button>
                       <Chip
                         label={assessmentStatus.message}
                         color={
@@ -398,9 +514,6 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
                         />
                       )}
                       <Box sx={{ flexGrow: 1 }} />
-                      <IconButton size="small" color="primary">
-                        <Edit />
-                      </IconButton>
                     </Box>
 
                     {/* Assessment History */}
@@ -471,6 +584,60 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
                         </List>
                       </Box>
                     )}
+
+                    {/* Notes Section */}
+                    <Box sx={{ mt: 3 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 'bold' }}>
+                        Notes:
+                      </Typography>
+                      {goal.notes && goal.notes.length > 0 ? (
+                        <List dense sx={{ maxHeight: 200, overflow: 'auto', backgroundColor: '#fafafa', borderRadius: 1, mb: 2 }}>
+                          {goal.notes
+                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Most recent first
+                            .map((note, index) => (
+                              <ListItem key={note.noteId} sx={{ 
+                                flexDirection: 'column', 
+                                alignItems: 'flex-start',
+                                borderBottom: goal.notes && index < goal.notes.length - 1 ? '1px solid #e0e0e0' : 'none'
+                              }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'flex-start' }}>
+                                  <Box sx={{ flexGrow: 1 }}>
+                                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                      {note.note}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                      {formatGoalDate(note.date)}
+                                    </Typography>
+                                  </Box>
+                                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                    <IconButton 
+                                      size="small" 
+                                      color="primary"
+                                      onClick={() => openEditNoteDialog(goal.goalId, note)}
+                                      sx={{ ml: 1 }}
+                                      title="Edit note"
+                                    >
+                                      <Edit fontSize="small" />
+                                    </IconButton>
+                                    <IconButton 
+                                      size="small" 
+                                      color="error"
+                                      onClick={() => deleteNote(goal.goalId, note.noteId)}
+                                      title="Delete note"
+                                    >
+                                      <Delete fontSize="small" />
+                                    </IconButton>
+                                  </Box>
+                                </Box>
+                              </ListItem>
+                            ))}
+                        </List>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mb: 2 }}>
+                          No notes yet. Click "Note" to add observations or comments.
+                        </Typography>
+                      )}
+                    </Box>
                   </Box>
                 </AccordionDetails>
               </Accordion>
@@ -571,6 +738,84 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
             disabled={!newGoalTitle.trim() || !newGoalDescription.trim() || !newGoalStartDate || !newGoalEndDate}
           >
             Add Goal
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Note Dialog */}
+      <Dialog 
+        open={addNoteDialogOpen} 
+        onClose={() => setAddNoteDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Add Note</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Add observations, comments, or context about this goal's progress.
+          </Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Note"
+            fullWidth
+            multiline
+            rows={4}
+            variant="outlined"
+            value={newNoteText}
+            onChange={(e) => setNewNoteText(e.target.value)}
+            placeholder="Enter your observations, modifications, context, or any other relevant information..."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddNoteDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleAddNote}
+            variant="contained"
+            disabled={!newNoteText.trim()}
+          >
+            Add Note
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Note Dialog */}
+      <Dialog 
+        open={editNoteDialogOpen} 
+        onClose={() => setEditNoteDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Edit Note</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Update your observations, comments, or context about this goal's progress.
+          </Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Note"
+            fullWidth
+            multiline
+            rows={4}
+            variant="outlined"
+            value={editNoteText}
+            onChange={(e) => setEditNoteText(e.target.value)}
+            placeholder="Enter your observations, modifications, context, or any other relevant information..."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditNoteDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleEditNote}
+            variant="contained"
+            disabled={!editNoteText.trim()}
+          >
+            Update Note
           </Button>
         </DialogActions>
       </Dialog>

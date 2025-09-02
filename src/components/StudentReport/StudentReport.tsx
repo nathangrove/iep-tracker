@@ -15,7 +15,7 @@ import {
   CalendarToday,
   Print,
 } from '@mui/icons-material';
-import { Student, Goal, AssessmentResult } from '../../types';
+import { Student, Goal, AssessmentResult, GoalNote } from '../../types';
 
 interface StudentReportProps {
   student: Student;
@@ -340,7 +340,65 @@ const StudentReport: React.FC<StudentReportProps> = ({ student, onBack }) => {
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph sx={{ '@media print': { color: '#333 !important', mb: 1 } }}>
                   {summary.goal.description}
-                </Typography>                                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                </Typography>
+
+                {/* Notes Section */}
+                {summary.goal.notes && summary.goal.notes.length > 0 && (
+                  <Box sx={{ mb: 2, '@media print': { mb: 1.5 } }}>
+                    <Typography variant="subtitle2" gutterBottom sx={{ 
+                      fontWeight: 600, 
+                      color: 'primary.main',
+                      '@media print': { color: '#333 !important', fontSize: '0.85rem', mb: 0.5 }
+                    }}>
+                      Teacher Notes:
+                    </Typography>
+                    <Box sx={{ 
+                      backgroundColor: '#f8f9fa', 
+                      borderRadius: 1, 
+                      p: 1.5,
+                      '@media print': { 
+                        backgroundColor: '#f9f9f9 !important',
+                        border: '1px solid #ddd',
+                        p: 1
+                      }
+                    }}>
+                      {summary.goal.notes
+                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                        .slice(0, 5) // Show only the 5 most recent notes in report
+                        .map((note, index) => (
+                          <Box key={note.noteId} sx={{ 
+                            mb: index < Math.min(4, summary.goal.notes!.length - 1) ? 1 : 0,
+                            '@media print': { mb: index < Math.min(4, summary.goal.notes!.length - 1) ? 0.5 : 0 }
+                          }}>
+                            <Typography variant="body2" sx={{ 
+                              mb: 0.25,
+                              '@media print': { fontSize: '0.8rem', lineHeight: 1.3 }
+                            }}>
+                              {note.note}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ 
+                              fontStyle: 'italic',
+                              '@media print': { color: '#666 !important', fontSize: '0.7rem' }
+                            }}>
+                              — {formatDate(note.date)}
+                            </Typography>
+                          </Box>
+                        ))}
+                      {summary.goal.notes.length > 5 && (
+                        <Typography variant="caption" color="text.secondary" sx={{
+                          fontStyle: 'italic',
+                          display: 'block',
+                          mt: 0.5,
+                          '@media print': { color: '#666 !important', fontSize: '0.7rem' }
+                        }}>
+                          ... and {summary.goal.notes.length - 5} more notes
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                )}
+
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
                   <Chip 
                     size="small" 
                     label={getFrequencyText(summary.goal)}
