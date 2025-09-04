@@ -406,12 +406,22 @@ const StudentReport: React.FC<StudentReportProps> = ({ student, onBack }) => {
                     variant="outlined"
                     sx={{ '@media print': { backgroundColor: '#f5f5f5', color: '#000 !important', border: '1px solid #ccc' } }}
                   />
-                  <Chip 
-                    size="small" 
-                    label={`${summary.passPercentage}% Last Session`}
-                    color={summary.passPercentage >= 80 ? 'success' : summary.passPercentage >= 60 ? 'warning' : 'error'}
-                    sx={{ '@media print': { backgroundColor: '#f5f5f5', color: '#000 !important', border: '1px solid #ccc' } }}
-                  />
+                  {summary.totalAssessments > 0 ? (
+                    <Chip 
+                      size="small" 
+                      label={`${summary.passPercentage}% Last Session`}
+                      color={summary.passPercentage >= 80 ? 'success' : summary.passPercentage >= 60 ? 'warning' : 'error'}
+                      sx={{ '@media print': { backgroundColor: '#f5f5f5', color: '#000 !important', border: '1px solid #ccc' } }}
+                    />
+                  ) : (
+                    <Chip 
+                      size="small" 
+                      label="No Assessments Yet"
+                      color="default"
+                      variant="outlined"
+                      sx={{ '@media print': { backgroundColor: '#f5f5f5', color: '#000 !important', border: '1px solid #ccc' } }}
+                    />
+                  )}
                   <Chip 
                     size="small" 
                     label={`${summary.dailyPassRates.length} Assessments`}
