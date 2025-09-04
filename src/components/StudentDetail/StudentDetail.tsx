@@ -65,6 +65,14 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
   const [editNoteDialogOpen, setEditNoteDialogOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<GoalNote | null>(null);
   const [editNoteText, setEditNoteText] = useState('');
+  const [editGoalDialogOpen, setEditGoalDialogOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [editGoalTitle, setEditGoalTitle] = useState('');
+  const [editGoalDescription, setEditGoalDescription] = useState('');
+  const [editGoalStartDate, setEditGoalStartDate] = useState('');
+  const [editGoalEndDate, setEditGoalEndDate] = useState('');
+  const [editGoalFrequency, setEditGoalFrequency] = useState<'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'custom'>('weekly');
+  const [editGoalCustomDays, setEditGoalCustomDays] = useState<number>(7);
 
   const addAssessment = (goalId: string, result: 'pass' | 'fail') => {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -226,6 +234,48 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
     };
     
     onUpdateStudent(updatedStudent);
+  };
+
+  const openEditGoalDialog = (goal: Goal) => {
+    setEditingGoal(goal);
+    setEditGoalTitle(goal.title);
+    setEditGoalDescription(goal.description);
+    setEditGoalStartDate(goal.startDate);
+    setEditGoalEndDate(goal.endDate);
+    setEditGoalFrequency(goal.frequency);
+    setEditGoalCustomDays(goal.customFrequencyDays || 7);
+    setEditGoalDialogOpen(true);
+  };
+
+  const handleEditGoal = () => {
+    if (editingGoal && editGoalTitle.trim() && editGoalDescription.trim() && editGoalStartDate && editGoalEndDate) {
+      const updatedGoal: Goal = {
+        ...editingGoal,
+        title: editGoalTitle.trim(),
+        description: editGoalDescription.trim(),
+        startDate: editGoalStartDate,
+        endDate: editGoalEndDate,
+        frequency: editGoalFrequency,
+        ...(editGoalFrequency === 'custom' && { customFrequencyDays: editGoalCustomDays }),
+      };
+
+      const updatedStudent = {
+        ...student,
+        goals: student.goals.map(goal => 
+          goal.goalId === editingGoal.goalId ? updatedGoal : goal
+        )
+      };
+
+      onUpdateStudent(updatedStudent);
+      setEditGoalDialogOpen(false);
+      setEditingGoal(null);
+      setEditGoalTitle('');
+      setEditGoalDescription('');
+      setEditGoalStartDate('');
+      setEditGoalEndDate('');
+      setEditGoalFrequency('weekly');
+      setEditGoalCustomDays(7);
+    }
   };
 
   const getFrequencyInDays = (frequency: string, customDays?: number) => {
@@ -438,9 +488,22 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
                 >
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', pr: 2 }}>
                     <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" component="h3" fontWeight="bold">
-                        {goal.title}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Typography variant="h6" component="h3" fontWeight="bold">
+                          {goal.title}
+                        </Typography>
+                        <IconButton 
+                          size="small" 
+                          color="primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditGoalDialog(goal);
+                          }}
+                          title="Edit goal"
+                        >
+                          <Edit fontSize="small" />
+                        </IconButton>
+                      </Box>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                         {goal.description}
                       </Typography>
@@ -816,6 +879,105 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student, onBack, onUpdate
             disabled={!editNoteText.trim()}
           >
             Update Note
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Goal Dialog */}
+      <Dialog
+        open={editGoalDialogOpen}
+        onClose={() => setEditGoalDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Edit Goal</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Goal Title"
+            fullWidth
+            variant="outlined"
+            value={editGoalTitle}
+            onChange={(e) => setEditGoalTitle(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Goal Description"
+            fullWidth
+            multiline
+            rows={3}
+            variant="outlined"
+            value={editGoalDescription}
+            onChange={(e) => setEditGoalDescription(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <TextField
+              margin="dense"
+              label="Start Date"
+              type="date"
+              fullWidth
+              variant="outlined"
+              value={editGoalStartDate}
+              onChange={(e) => setEditGoalStartDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              margin="dense"
+              label="End Date"
+              type="date"
+              fullWidth
+              variant="outlined"
+              value={editGoalEndDate}
+              onChange={(e) => setEditGoalEndDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Box>
+          <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
+            <InputLabel>Assessment Frequency</InputLabel>
+            <Select
+              value={editGoalFrequency}
+              label="Assessment Frequency"
+              onChange={(e) => setEditGoalFrequency(e.target.value as typeof editGoalFrequency)}
+            >
+              <MenuItem value="daily">Daily</MenuItem>
+              <MenuItem value="weekly">Weekly</MenuItem>
+              <MenuItem value="biweekly">Bi-weekly</MenuItem>
+              <MenuItem value="monthly">Monthly</MenuItem>
+              <MenuItem value="quarterly">Quarterly</MenuItem>
+              <MenuItem value="custom">Custom</MenuItem>
+            </Select>
+          </FormControl>
+          {editGoalFrequency === 'custom' && (
+            <TextField
+              margin="dense"
+              label="Custom Days Between Assessments"
+              type="number"
+              fullWidth
+              variant="outlined"
+              value={editGoalCustomDays}
+              onChange={(e) => setEditGoalCustomDays(parseInt(e.target.value) || 7)}
+              inputProps={{ min: 1, max: 365 }}
+              helperText="Number of days between assessments"
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditGoalDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditGoal}
+            variant="contained"
+            disabled={!editGoalTitle.trim() || !editGoalDescription.trim() || !editGoalStartDate || !editGoalEndDate}
+          >
+            Update Goal
           </Button>
         </DialogActions>
       </Dialog>
